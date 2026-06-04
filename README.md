@@ -1,2 +1,2 @@
-# Assembly x86
+# Assembly
 A repository to store my files about assembly study
