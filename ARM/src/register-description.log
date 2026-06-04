@@ -1,0 +1,40 @@
+https://cpulator.01xz.net/?sys=arm-de1soc
+
+# Registradores Gerais (R0 - R12)
+R0 a R12: São registradores de uso geral e podem ser usados para armazenar dados temporários, argumentos de funções e resultados de cálculos. Esses registradores são frequentemente usados pelos programadores para armazenar variáveis temporárias e passar argumentos para funções.
+R0 e R1: Frequentemente usados para passar os primeiros dois argumentos para funções, no caso de chamadas de sistema (syscalls).
+R0: Também usado para retornar o valor da função.
+R12: Normalmente, é usado como registrador de "temporário", especialmente em chamadas de função, mas não há uma convenção fixa para ele, dependendo do compilador e das convenções de chamada.
+
+# Registrador de Stack (SP - Stack Pointer)
+SP (R13): O Stack Pointer (ponteiro de pilha) aponta para a posição atual da pilha, que é uma área de memória usada para armazenar dados temporários, como variáveis locais e endereços de retorno de função. O ponteiro de pilha é manipulado quando há chamadas de função e quando variáveis locais são alocadas.
+
+# Registrador de Link (LR - Link Register)
+LR (R14): O Link Register é utilizado para armazenar o endereço de retorno quando uma função é chamada. Esse registrador é atualizado com o endereço da próxima instrução após uma chamada de função (usualmente a instrução BL, que é a chamada de função). Quando a execução de uma função é finalizada, o valor em LR é usado para retornar ao ponto da execução onde a função foi chamada.
+
+# Registrador de Program Counter (PC)
+PC (R15): O Program Counter é o registrador que mantém o endereço da próxima instrução a ser executada. Quando uma instrução é executada, o PC é incrementado para apontar para a próxima instrução. Ele pode ser modificado diretamente para controlar o fluxo do programa, como no caso de saltos ou exceções.
+
+# Registradores de Status de Controle (CPSR e SPSR)
+CPSR (Current Program Status Register): O CPSR contém informações sobre o estado atual do processador, como o código de estado da operação (flags de condição, como Zero, Negative, Carry, Overflow, etc.), o modo de operação (usuário, supervisor, etc.), e a desativação de interrupções (IRQ e FIQ).
+SPSR (Saved Program Status Register): O SPSR é usado para salvar o CPSR quando o processador entra em um modo privilegiado (como o modo de exceção). O SPSR armazena o estado anterior do processador para que ele possa ser restaurado ao retornar do modo privilegiado.
+
+# Registradores de Exceção
+
+Quando o processador ARMv7 entra em um modo de exceção (por exemplo, devido a uma interrupção), ele usa alguns registradores especiais para gerenciar o fluxo de controle:
+
+R0-R12: Durante uma exceção, esses registradores podem ser usados de maneira similar a como são usados em outros contextos, mas os valores podem ser salvos e restaurados dependendo do modo de exceção.
+R13 (SP): O Stack Pointer é configurado de forma diferente durante exceções, apontando para diferentes áreas de memória dependendo do modo de exceção.
+R14 (LR): O Link Register também é configurado para armazenar o endereço de retorno apropriado em diferentes modos de exceção.
+# Modo de Operação e Privilegiados
+O ARMv7 tem diferentes modos de operação, como:
+
+- Modo de usuário (User mode)
+- Modo de supervisor (Supervisor mode)
+- Modo de interrupção rápida (FIQ mode) e Modo de interrupção normal (IRQ mode)
+- Modo de exceção abortiva (Abort mode)
+- Modo de sistema (System mode), que é o modo privilegiado onde o processador pode executar qualquer operação, incluindo acesso a registradores especiais.
+
+# Registradores de Controle de Cache e MMU
+O ARMv7 também tem registradores específicos para controlar o cache e a Unidade de Gerenciamento de Memória (MMU), que são usados em operações avançadas de gerenciamento de memória e desempenho.
+
