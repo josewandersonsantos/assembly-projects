@@ -7,15 +7,21 @@ section .data
     error_len equ $ - error_msg
 
     ; variable to store the actual state of the calculator
-    ; 0 = waiting for input, 1 = processing input, 2 = ready to output result
-    ; actual_state b db 0
+    ; 0 = waiting for input, 
+    ; 1 = getting first operand, 
+    ; 2 = getting operator, 
+    ; 3 = getting second operand,
+    ; 5 = calculatting result
+    ; 4 = ready to output result
+    
+    actual_state b db 0
 
 section .bss
-    buffer resb 12  ; reserve 12 bytes for input buffer
-    opr1 resb 4     ; reserve 4 bytes for operand 1 
-    opr2 resb 4     ; reserve 4 bytes for operand 2
-    operator resb 1 ; reserve 1 byte for the operator
-    result resb 4   ; reserve 4 bytes for the result
+    buffer resb 100  ; reserve 100 bytes for input buffer
+    opr1 resb 4      ; reserve 4 bytes for operand 1 
+    opr2 resb 4      ; reserve 4 bytes for operand 2
+    operator resb 1  ; reserve 1 byte for the operator
+    result resb 4    ; reserve 4 bytes for the result
     
 section .text
 
@@ -29,7 +35,7 @@ get_input:
     MOV EAX, 3
     MOV EBX, 0
     MOV ECX, buffer ; buffer to store the input
-    MOV EDX, 12     ; number of bytes to read
+    MOV EDX, 100     ; number of bytes to read
     INT 0x80        ; call kernel 
 
     jmp process_input
@@ -38,6 +44,52 @@ clean_input:
     ; Clean the input by removing any newline characters or extra spaces
     ; You can use a loop to iterate through the input buffer and remove unwanted characters
     ; After cleaning the input, you can proceed to process it
+
+get_op1:
+    ; Extract the first operand from the input
+    ; You can use a loop to iterate through the input buffer until you find a space or an operator
+    ; Store the first operand in a variable for later use
+
+get_op2:
+    ; Extract the second operand from the input
+    ; You can use a loop to iterate through the input buffer until you find a space or an operator
+    ; Store the second operand in a variable for later use
+
+get_operator:
+    ; Extract the operator from the input
+    ; You can use a loop to iterate through the input buffer until you find a space or an operator
+    ; Store the operator in a variable for later use
+    l1: 
+        mov al, [buffer + actual_state]
+        cmp al, ' '
+        je l2
+        cmp al, '+'
+        je l3
+        cmp al, '-'
+        je l4
+        cmp al, '*'
+        je l5
+        cmp al, '/'
+        je l6
+        inc actual_state
+        jmp l1
+    l2:
+        ; store opr1
+        ; you can use a loop to copy the characters from the buffer to opr1 until you find a space or an operator
+        ; you can also convert the characters from ASCII to integer if necessary
+        jmp get_op2
+    l3:
+        ; store operator as '+'
+        jmp get_op2
+    l4:
+        ; store operator as '-'
+        jmp get_op2
+    l5:
+        ; store operator as '*'
+        jmp get_op2
+    l6:
+        ; store operator as '/'
+        jmp get_op2
 
 process_input:
     ; Process the input to determine the operation and operands
@@ -59,7 +111,12 @@ process_input:
     ; je op_div
     ; If the operator is not recognized, you can print an error message and exit
 
-    ; CMP actual_state, 0
+    CMP actual_state, 1
+    JE get_op1
+    CMP actual_state, 2
+    JE get_operator
+    CMP actual_state, 3
+    JE get_op2
     
 
 
