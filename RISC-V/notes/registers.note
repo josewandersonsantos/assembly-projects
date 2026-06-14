@@ -1,0 +1,109 @@
+* x0 – zero: sempre retorna zero, não pode ser alterado. Útil para 
+inicializações rápidas ou comparações. Usado quando você precisa carregar 
+um valor nulo ou comparar algo com zero sem gastar memória. 
+Exemplo: addi t0, x0, 5 carrega o número 5 em t0 sem precisar de uma 
+constante armazenada.
+
+* x1 – ra: guarda o endereço de retorno de chamadas de função. Se não for 
+salvo corretamente, a execução pode se perder. Ao chamar uma função, o 
+endereço de retorno é salvo aqui. Exemplo: ao usar jal ra, funcao, o 
+processador sabe para onde voltar depois que a função terminar.
+
+* x2 – sp: aponta para o topo da pilha. É crítico para alocação de variáveis 
+locais e controle de chamadas aninhadas. Sempre aponta para o topo da pilha. 
+Exemplo: ao entrar em uma função, você faz addi sp, sp, -16 para reservar 
+espaço para variáveis locais.
+
+* x3 – gp: usado para acessar dados globais. Normalmente inicializado pelo 
+sistema. Usado para acessar variáveis globais em programas maiores. 
+Exemplo: compiladores configuram gp para apontar para a área de dados globais.
+
+* x4 – tp: identifica o contexto de thread, essencial em ambientes 
+multitarefa. Em sistemas multitarefa, cada thread tem seu próprio 
+contexto. O tp ajuda a acessar dados específicos da thread atual.
+
+* x5–x7, x28–x31 – temporários: não são preservados pelo callee. Devem ser 
+usados apenas para cálculos intermediários. Ideais para cálculos intermediários.
+Exemplo: multiplicar dois números dentro de uma função sem se preocupar em 
+preservar o valor após o retorno.
+
+* x8 – s0/fp: funciona como registrador salvo e também como frame pointer, 
+útil para depuração e acesso estruturado à pilha. Usado como frame pointer. 
+Exemplo: facilita depuração, pois aponta para o início do quadro da pilha da 
+função, permitindo acesso previsível às variáveis locais.
+
+* x9, x18–x27 – salvos: preservados pelo callee. São ideais para variáveis 
+que precisam sobreviver a chamadas de função. Perfeitos para variáveis que 
+precisam sobreviver a chamadas de função. Exemplo: guardar o índice de um 
+loop que continua mesmo após chamar funções auxiliares.
+
+* x10–x17 – argumentos: usados para passagem de parâmetros e retorno de 
+valores. Se a função precisar de mais parâmetros, eles vão para a pilha.
+Usados para passar parâmetros e retornar valores. Exemplo: a0 recebe o 
+primeiro argumento de uma função e também guarda o valor de retorno. Se a 
+função retorna um inteiro, ele estará em a0.
+
+Em resumo:
+- Caller-saved (temporários e argumentos) devem ser tratados com cuidado, 
+pois podem ser sobrescritos em chamadas. Use temporários (caller-saved) para 
+cálculos rápidos, sem se preocupar em preservar.
+
+- Callee-saved (registradores salvos) são garantidos após a execução da 
+função, o que dá estabilidade para variáveis persistentes.
+O sp e o fp são fundamentais para manter a integridade da pilha e 
+facilitar depuração. Use salvos (callee-saved) para variáveis que 
+precisam continuar válidas após chamadas.
+
+- Sempre ajuste sp ao entrar e sair de funções para manter a pilha organizada.
+Lembre-se que a0–a7 são a interface natural entre funções — tanto para entrada
+quanto saída.
+
+================================================================================
+# Função principal: soma dois números e multiplica o resultado por 2
+main:
+    addi sp, sp, -16        # Reserva espaço na pilha
+    sw   ra, 12(sp)         # Salva endereço de retorno
+    sw   s0, 8(sp)          # Salva s0 (callee-saved)
+
+    addi s0, sp, 16         # Configura frame pointer (s0/fp)
+
+    li   a0, 5              # Primeiro argumento (x10 = a0)
+    li   a1, 7              # Segundo argumento (x11 = a1)
+    add  t0, a0, a1         # Usa temporário (x5 = t0) para soma
+
+    mv   a0, t0             # Move resultado para a0 (argumento da função auxiliar)
+    jal  ra, mult2          # Chama função auxiliar
+
+    mv   t1, a0             # Resultado final em t1 (caller-saved)
+
+    lw   ra, 12(sp)         # Restaura endereço de retorno
+    lw   s0, 8(sp)          # Restaura s0
+    addi sp, sp, 16         # Libera espaço da pilha
+    jr   ra                 # Retorna
+
+# Função auxiliar: multiplica argumento por 2
+mult2:
+    slli a0, a0, 1          # Multiplica argumento (a0) por 2
+    jr   ra                 # Retorna com resultado em a0
+
+
+Situações de uso ilustradas:
+sp: ajustado no início e fim da função para reservar/liberar espaço na pilha.
+
+ra: salvo antes da chamada e restaurado depois, garantindo retorno correto.
+
+s0/fp: usado como frame pointer para organizar variáveis locais.
+
+a0–a1: recebem os argumentos da função principal.
+
+t0, t1: usados para cálculos intermediários (soma e resultado final).
+
+a0: também serve como registrador de retorno da função auxiliar.
+
+👉 Esse exemplo mostra a disciplina:
+
+Caller salva temporários se precisar deles depois.
+
+Callee salva registradores persistentes (como s0).
+
+Argumentos e retorno fluem naturalmente por a0–a7.
