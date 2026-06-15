@@ -10,22 +10,22 @@ section .data
     ; 0 = waiting for input, 
     ; 1 = getting first operand, 
     ; 2 = getting operator, 
-    ; 3 = getting second operand,
-    ; 5 = calculatting result
-    ; 4 = ready to output result
+    ; 3 = getting second operand, 
+    ; 5 = calculatting result 
+    ; 4 = ready to output result 
     
     actual_state b db 0
 
 section .bss
-    buffer resb 100  ; reserve 100 bytes for input buffer
-    opr1 resb 4      ; reserve 4 bytes for operand 1 
-    opr2 resb 4      ; reserve 4 bytes for operand 2
-    operator resb 1  ; reserve 1 byte for the operator
-    result resb 4    ; reserve 4 bytes for the result
+    buffer resb 100   ; reserve 100 bytes for input buffer
+    input_size resb 1 ; reserve 1 byte for input len 
+    input_idx resb 1  ; reserve 1 byte for input index
+    opr1 resb 4       ; reserve 4 bytes for operand 1 
+    opr2 resb 4       ; reserve 4 bytes for operand 2
+    operator resb 1   ; reserve 1 byte for the operator
+    result resb 4     ; reserve 4 bytes for the result
     
 section .text
-
-_start:
 
 get_input:
     ; Read input from the user
@@ -34,11 +34,14 @@ get_input:
     
     MOV EAX, 3
     MOV EBX, 0
-    MOV ECX, buffer ; buffer to store the input
+    MOV ECX, buffer  ; buffer to store the input
     MOV EDX, 100     ; number of bytes to read
-    INT 0x80        ; call kernel 
+    INT 0x80         ; call kernel 
 
-    jmp process_input
+    MOV [input_size], EAX ; get input len
+    MOV input_idx, 0
+
+    JMP process_input
 
 clean_input:
     ; Clean the input by removing any newline characters or extra spaces
@@ -60,7 +63,7 @@ get_operator:
     ; You can use a loop to iterate through the input buffer until you find a space or an operator
     ; Store the operator in a variable for later use
     l1: 
-        mov al, [buffer + actual_state]
+        mov al, [buffer + input_idx]
         cmp al, ' '
         je l2
         cmp al, '+'
@@ -71,7 +74,7 @@ get_operator:
         je l5
         cmp al, '/'
         je l6
-        inc actual_state
+        inc input_idx
         jmp l1
     l2:
         ; store opr1
@@ -186,6 +189,10 @@ print_result:
     ; You can use sys_write to write the result to stdout (file descriptor 1)
     ; You can convert the result from integer to string if necessary before printing
     ; After printing the result, you can jump to the exit label to exit the program
+
+_start:
+    CALL get_input
+    JMP exit
 
 exit:
     ; Exit the program
