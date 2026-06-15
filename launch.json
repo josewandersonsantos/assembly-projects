@@ -1,0 +1,23 @@
+{
+    "version":"0.2.0",
+    "inputs":
+    [
+        {
+            "elfFile": "file.elf"
+        }
+    ],
+    "configurations":
+    [
+        {
+            "name": "Debug QEMU for ESP32-C3 (RISC-V)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/${elfFile}",
+            "cwd": "${workspaceFolder}",
+            "miDebuggerPath": "gdb",
+            "miDebuggerServerAddress": "localhost:1234",
+            "stopAtEntry": true,
+            "preLaunchTask": "Run QEMU"
+        }
+    ]
+}
