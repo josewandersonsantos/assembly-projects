@@ -1,0 +1,166 @@
+/*
+ * REF: https://www.tutorialspoint.com/assembly_programming
+ */
+================================================================================
+
+- Each byte of character is stored as its ASCII value in hexadecimal.
+- Each decimal value is automatically converted to its 16-bit binary equivalent
+and stored as a hexadecimal number.
+- Processor uses the little-endian byte ordering.
+- Negative numbers are converted to its 2's complement representation.
+- Short and long floating-point numbers are represented using 32 or 64 bits, 
+respectively.
+================================================================================
+
+# Examples to define directives:
+choice		DB	'y'
+number		DW	12345
+neg_number	DW	-12345
+big_number	DQ	123456789
+real_number1	DD	1.234
+real_number2	DQ	123.456
+
+# Examples to reserve directives:
+buffer   RESB 100
+number01 RESW 2
+number02 RESD 1
+================================================================================
+To define CONSTANTs in .data section, you can use EQU directive
+# Examples:
+_TOTAL equ 100
+_BUF_SIZE equ 64
+
+To redefine CONSTANT in any section, you can use %assign directive
+# Examples:
+%assign _TOTAL 100
+%assign _BUF_SIZE 64
+
+To define MACROS in any section, you can use %define directive
+# Examples:
+%define PTR [EBP+4]
+%define PRINT_CHAR MOV EAX, 4
+
+Can use %undef to undefine the directive.
+# Examples:
+%undef PRINT_CHAR
+================================================================================
+The INC instruction is used for incrementing an operand by one.
+# Examples:
+INC [count]
+INC word [EBX]
+	
+The DEC instruction is used for decrementing an operand by one.
+# Examples:
+DEC [value]
+DEC byte [ESI]
+
+================================================================================
+The ADD and SUB instructions are used for performing simple addition/subtraction 
+of binary data in byte, word and doubleword size, i.e., for adding or 
+subtracting 8-bit, 16-bit or 32-bit operands, respectively.
+
+The ADD/SUB instruction can take place between:
+- Register to register
+- Memory to register
+- Register to memory
+- Register to constant data
+- Memory to constant data
+
+================================================================================
+There are two instructions for multiplying binary data. The MUL (Multiply) 
+instruction handles unsigned data and the IMUL (Integer Multiply) handles signed 
+data. Both instructions affect the Carry and Overflow flag.
+
+# When two bytes are multiplied: The multiplicand is in the AL register, and the 
+multiplier is a byte in the memory or in another register. The product is in AX. 
+High-order 8 bits of the product is stored in AH and the low-order 8 bits are 
+stored in AL.
+
+AL x 8bit source = AH AL
+---
+
+# When two one-word values are multiplied: The multiplicand should be in the AX 
+register, and the multiplier is a word in memory or another register. For example, 
+for an instruction like MUL DX, you must store the multiplier in DX and the 
+multiplicand in AX.
+
+The resultant product is a doubleword, which will need two registers. The 
+high-order (leftmost) portion gets stored in DX and the lower-order (rightmost) 
+portion gets stored in AX.
+
+AX x 16bit source = DX AX
+---
+
+# When two doubleword values are multiplied
+When two doubleword values are multiplied, the multiplicand should be in EAX and 
+the multiplier is a doubleword value stored in memory or in another register. 
+The product generated is stored in the EDX:EAX registers, i.e., the high order 
+32 bits gets stored in the EDX register and the low order 32-bits are stored in 
+the EAX register.
+
+EAX x 32bit source = EDX EAX
+---
+
+# Examples:
+MOV AL, 10
+MOV DL, 25
+MUL DL
+...
+MOV DL, 0FFH	; DL= -1
+MOV AL, 0BEH	; AL = -66
+IMUL DL
+---
+
+MOV	AL,'3'  ; get char 3 in ASCII
+SUB AL, '0' ; convert ASCII to decimal
+
+MOV BL, '2' ; get char 3 in ASCII
+SUB BL, '0' ; convert ASCII to decimal
+MUL BL      ; multiply BL to AL and storage result in AL
+ADD	AL, '0' ; convert result in AL to ASCII
+
+================================================================================
+The division operation generates two elements - a quotient and a remainder. In 
+case of multiplication, overflow does not occur because double-length registers 
+are used to keep the product. However, in case of division, overflow may occur. 
+The processor generates an interrupt if overflow occurs.
+
+The DIV (Divide) instruction is used for unsigned data and the IDIV (Integer 
+Divide) is used for signed data.
+
+# When the divisor is 1 byte
+The dividend is assumed to be in the AX register (16 bits). After division, the 
+quotient goes to the AL register and the remainder goes to the AH register.
+
+AX(16bit) / (8bit)  = AL(Quotient) AH(Remainder)
+---
+
+# When the divisor is 1 byte
+The dividend is assumed to be in the AX register (16 bits). After division, the 
+quotient goes to the AL register and the remainder goes to the AH register.
+
+(DX AX)(32bit) / (16bit) = AX(Quotient) DX(Remainder)
+---
+
+# When the divisor is doubleword
+The dividend is assumed to be 64 bits long and in the EDX:EAX registers. The 
+high-order 32 bits are in EDX and the low-order 32 bits are in EAX. After 
+division, the 32-bit quotient goes to the EAX register and the 32-bit remainder 
+goes to the EDX register.
+
+(EDX EAX)(64bit) / (32bit) = EAX(Quotient) EDX(Remainder)
+---
+
+# Examples:
+; The following example divides 8 with 2. 
+; The dividend 8 is stored in the 16-bit AX register and 
+; the divisor 2 is stored in the 8-bit BL register.
+
+MOV	AX, '8' ; get char 8 in ASCII
+SUB AX, '0' ; convert ASCII to decimal
+
+MOV BL, '2' ; get char 2 in ASCII
+SUB BL, '0' ; convert ASCII to decimal
+DIV BL
+ADD	AX, '0'
+================================================================================

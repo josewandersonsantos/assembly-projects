@@ -1,3 +1,8 @@
+/*
+ * REF: https://www.tutorialspoint.com/assembly_programming
+ */
+================================================================================
+
 # DATA REGISTERS
 
 As complete 32-bit data registers: EAX, EBX, ECX, EDX.
