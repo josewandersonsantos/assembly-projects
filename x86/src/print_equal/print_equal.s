@@ -30,7 +30,7 @@ loop:
     
     MOV  EAX, 0x04  ; syscall (sys_write)
     MOV  EBX, 0x01  ; file descriptor (std_out)
-    MOV  ECX, ESP   ; char to print (EOF)
+    MOV  ECX, ESP   ; address char to print (in TOP of stack - EOF)
     MOV  EDX, 0x01  ; size of char
     INT  0x80       ; syscall
 
