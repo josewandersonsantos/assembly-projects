@@ -2,7 +2,7 @@ global _start
 
 section .data
     item db 'A'     ; char to print
-    eof db 0x0A     ; break line.. Can i change this?
+    ; eof db 0x0A     ; break line.. Can i change this?
 
 section .text
 
@@ -26,9 +26,11 @@ loop:
     JNZ loop        ; verify if ECX is zero
 
     ; print break line
+    PUSH byte 0x0A  ; put \n in stack
+    
     MOV  EAX, 0x04  ; syscall (sys_write)
     MOV  EBX, 0x01  ; file descriptor (std_out)
-    MOV  ECX, eof   ; char to print (EOF)
+    MOV  ECX, ESP   ; char to print (EOF)
     MOV  EDX, 0x01  ; size of char
     INT  0x80       ; syscall
 
