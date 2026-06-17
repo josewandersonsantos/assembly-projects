@@ -14,12 +14,12 @@ section .data
     ; 5 = calculatting result 
     ; 4 = ready to output result 
     
-    state b db 0
+    state db 0
 
 section .bss
     buffer resb 100   ; reserve 100 bytes for input buffer
-    input_size resb 1 ; reserve 1 byte for input len 
-    input_idx resb 1  ; reserve 1 byte for input index
+    input_size resb 4 ; reserve 4 byte for input len 
+    input_idx resb 4  ; reserve 4 byte for input index
     opr1 resb 4       ; reserve 4 bytes for operand 1 
     opr2 resb 4       ; reserve 4 bytes for operand 2
     operator resb 1   ; reserve 1 byte for the operator
@@ -38,12 +38,12 @@ get_input:
     MOV EDX, 0x64    ; number of bytes to read
     INT 0x80         ; call kernel 
 
-    MOV input_size, EAX ; get input len
-    MOV input_idx, 0x00
-    MOV state, 0x01
-    MOV opr1, 0x00
-    MOV opr2, 0x00
-    MOV operator, 0x00
+    MOV DWORD [input_size], EAX ; get input len
+    MOV WORD  [input_idx], 0x00
+    MOV BYTE  [state], 0x00
+    MOV WORD  [opr1], 0x00
+    MOV WORD  [opr2], 0x00
+    MOV BYTE  [operator], 0x00
 
     JMP process_input
 
@@ -56,55 +56,45 @@ get_op1:
     ; Extract the first operand from the input
     ; You can use a loop to iterate through the input buffer until you find a space or an operator
     ; Store the first operand in a variable for later use
-    PUSH EAX
 
-    MOV EAX, [buffer + input_idx]
-    CMP EAX 
-    SUB EAX, EAX, 0x30
-    CMP
+    MOV EAX, [input_idx]
+    XOR EBX, EBX
+    MOV EBX, [buffer + EAX]
+    CMP EBX, ' '
+    JE process_input
+
+    INC BYTE [input_idx]
+        
+    CMP EBX, '0'
+    JL invalid_input
+    CMP EBX, '9'
+    JG invalid_input
     
-    CMP
+    MOV EAX, opr1
+    MOV DL, 0x0A
+    MUL DL
+    
+    SUB EBX, 0x30
+    ADD EAX, EBX
+
+    JMP get_op1
 
 get_op2:
     ; Extract the second operand from the input
     ; You can use a loop to iterate through the input buffer until you find a space or an operator
     ; Store the second operand in a variable for later use
+    JE process_input
 
 get_operator:
     ; Extract the operator from the input
     ; You can use a loop to iterate through the input buffer until you find a space or an operator
     ; Store the operator in a variable for later use
-    l1: 
-        MOV EAX, [buffer + input_idx]
-        cmp al, ' '
-        je l2
-        cmp al, '+'
-        je l3
-        cmp al, '-'
-        je l4
-        cmp al, '*'
-        je l5
-        cmp al, '/'
-        je l6
-        inc input_idx
-        jmp l1
-    l2:
-        ; store opr1
-        ; you can use a loop to copy the characters from the buffer to opr1 until you find a space or an operator
-        ; you can also convert the characters from ASCII to integer if necessary
-        jmp get_op2
-    l3:
-        ; store operator as '+'
-        jmp get_op2
-    l4:
-        ; store operator as '-'
-        jmp get_op2
-    l5:
-        ; store operator as '*'
-        jmp get_op2
-    l6:
-        ; store operator as '/'
-        jmp get_op2
+    MOV EAX, [input_idx]
+    XOR EBX, EBX
+    MOV EBX, [buffer + EAX]
+    
+    JE process_input
+
 
 process_input:
     ; Process the input to determine the operation and operands
@@ -115,25 +105,27 @@ process_input:
     ; Based on the operator, jump to the corresponding operation label
     ; For example, if the operator is '+', jump to op_sum
     ; You can use a series of comparisons to determine the operator
-    ; For example:
-    ; cmp operator, '+'
-    ; je op_sum
-    ; cmp operator, '-'
-    ; je op_sub
-    ; cmp operator, '*'
-    ; je op_mul
-    ; cmp operator, '/'
-    ; je op_div
     ; If the operator is not recognized, you can print an error message and exit
-
-    CMP state, 1
+    INC BYTE [state]
+    MOV BYTE BL, [state]
+    CMP BL, 0x01
     JE get_op1
-    CMP state, 2
+    CMP BL, 0x02
     JE get_operator
-    CMP state, 3
+    CMP BL, 0x03
     JE get_op2
 
-    jmp clean_input
+    MOV BYTE BL, [operator]
+    CMP BL, '+'
+    JMP op_sum
+    CMP BL, '-'
+    JMP op_sub
+    CMP BL, 'x'
+    JMP op_mul
+    CMP BL, '/'
+    JMP op_div
+
+    JMP exit
 
 ascii_to_int:
     ; Convert the operand from ASCII string to integer
@@ -155,6 +147,13 @@ op_sum:
     ; You can convert the result from integer to string if necessary before printing
     ; After printing the result, you can jump to the exit label to exit the program
 
+    MOV EAX, [opr1]
+    MOV EBX, [opr2]
+    ADD EAX, EBX
+
+    MOV [result], EAX
+    JMP print_result
+
 op_sub:
     ; Perform subtraction on the operands
     ; You can use the SUB instruction to subtract the operands
@@ -167,6 +166,12 @@ op_sub:
     ; You can use sys_write to write the result to stdout (file descriptor 1)
     ; You can convert the result from integer to string if necessary before printing
     ; After printing the result, you can jump to the exit label to exit the program
+    MOV EAX, [opr1]
+    MOV EBX, [opr2]
+    SUB EAX, EBX
+
+    MOV [result], EAX
+    JMP print_result
 
 op_mul:
     ; Perform multiplication on the operands
@@ -180,6 +185,12 @@ op_mul:
     ; You can use sys_write to write the result to stdout (file descriptor 1)
     ; You can convert the result from integer to string if necessary before printing
     ; After printing the result, you can jump to the exit label to exit the program
+    MOV EAX, [opr1]
+    MOV EBX, [opr2]
+    MUL EBX
+
+    MOV [result], EAX
+    JMP print_result
     
 op_div:
     ; Perform division on the operands
@@ -193,12 +204,24 @@ op_div:
     ; You can use sys_write to write the result to stdout (file descriptor 1)
     ; You can convert the result from integer to string if necessary before printing
     ; After printing the result, you can jump to the exit label to exit the program
+    MOV EAX, [opr1]
+    MOV EBX, [opr2]
+    DIV EBX
+
+    MOV [result], EAX
+    JMP print_result
+
+invalid_input:
+    JMP exit
 
 print_result:
     ; Print the result to the user
     ; You can use sys_write to write the result to stdout (file descriptor 1)
     ; You can convert the result from integer to string if necessary before printing
     ; After printing the result, you can jump to the exit label to exit the program
+
+
+    JMP get_input
 
 _start:
     CALL get_input
@@ -207,6 +230,6 @@ _start:
 exit:
     ; Exit the program
     ; You can use sys_exit to exit the program with a status code
-    MOV EAX, 1
-    MOV EBX, 0
+    MOV EAX, 1   ; sys_exit
+    XOR EBX, EBX
     INT 0x80
