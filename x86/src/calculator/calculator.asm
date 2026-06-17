@@ -83,13 +83,13 @@ process_input:
 
     MOV BYTE BL, [operator]
     CMP BL, '+'
-    JMP op_sum
+    JE op_sum
     CMP BL, '-'
-    JMP op_sub
-    CMP BL, 'x'
-    JMP op_mul
+    JE op_sub
+    CMP BL, '*'
+    JE op_mul
     CMP BL, '/'
-    JMP op_div
+    JE op_div
 
     JMP exit
 
@@ -175,8 +175,30 @@ get_operator:
     JE process_input
 
     JMP get_operator
-s
-int_to_ascii:
+
+; int_to_ascii:
+    
+;     XOR EDX, EDX
+;     MOV ECX, 0x0A
+;     DIV ECX
+
+;     ADD DL, 0x30
+;     PUSH EDX
+
+;     CMP EAX, 0x00
+;     JLE exit
+
+;     CALL int_to_ascii
+
+;     MOV EAX, 0x04
+;     MOV EBX, 0x00
+;     MOV ECX, ESP
+;     MOV EDX, 0x01
+;     INT 0x80
+    
+;     POP EDX
+
+;     ret
 
 ascii_to_int:
     ; Convert the operand from ASCII string to integer
@@ -274,11 +296,8 @@ invalid_input:
 
 print_result:
     ; Print the result to the user
-    ; You can use sys_write to write the result to stdout (file descriptor 1)
-    ; You can convert the result from integer to string if necessary before printing
-    ; After printing the result, you can jump to the exit label to exit the program
-
-
+    MOV EAX, [result]
+    CALL int_to_ascii
     JMP exit
 
 exit:
