@@ -1,16 +1,16 @@
 global _start
 
 section .data
-    output db 0x01
+    output db '0'
 
 section .text
 _start:
     MOV ECX, 0x0A
-    MOV [output], '0'
+
 L1:
-    MOV EDX, output
-    INC EDX
-    MOV [output], EDX
+    MOV byte DL, output[0]
+    INC byte DL
+    MOV byte output[0], DL
     
     PUSH ECX
 
