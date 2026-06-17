@@ -14,7 +14,7 @@ section .data
     ; 5 = calculatting result 
     ; 4 = ready to output result 
     
-    actual_state b db 0
+    state b db 0
 
 section .bss
     buffer resb 100   ; reserve 100 bytes for input buffer
@@ -32,14 +32,18 @@ get_input:
     ; You can use sys_read to read from stdin (file descriptor 0)
     ; Store the input in a buffer for processing
     
-    MOV EAX, 3
-    MOV EBX, 0
+    MOV EAX, 0x03    ; syscall (sys_read)
+    MOV EBX, 0x00    ; file descriptor stdin   
     MOV ECX, buffer  ; buffer to store the input
-    MOV EDX, 100     ; number of bytes to read
+    MOV EDX, 0x64    ; number of bytes to read
     INT 0x80         ; call kernel 
 
-    MOV [input_size], EAX ; get input len
-    MOV input_idx, 0
+    MOV input_size, EAX ; get input len
+    MOV input_idx, 0x00
+    MOV state, 0x01
+    MOV opr1, 0x00
+    MOV opr2, 0x00
+    MOV operator, 0x00
 
     JMP process_input
 
@@ -52,6 +56,14 @@ get_op1:
     ; Extract the first operand from the input
     ; You can use a loop to iterate through the input buffer until you find a space or an operator
     ; Store the first operand in a variable for later use
+    PUSH EAX
+
+    MOV EAX, [buffer + input_idx]
+    CMP EAX 
+    SUB EAX, EAX, 0x30
+    CMP
+    
+    CMP
 
 get_op2:
     ; Extract the second operand from the input
@@ -63,7 +75,7 @@ get_operator:
     ; You can use a loop to iterate through the input buffer until you find a space or an operator
     ; Store the operator in a variable for later use
     l1: 
-        mov al, [buffer + input_idx]
+        MOV EAX, [buffer + input_idx]
         cmp al, ' '
         je l2
         cmp al, '+'
@@ -114,14 +126,12 @@ process_input:
     ; je op_div
     ; If the operator is not recognized, you can print an error message and exit
 
-    CMP actual_state, 1
+    CMP state, 1
     JE get_op1
-    CMP actual_state, 2
+    CMP state, 2
     JE get_operator
-    CMP actual_state, 3
+    CMP state, 3
     JE get_op2
-    
-
 
     jmp clean_input
 

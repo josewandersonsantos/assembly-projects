@@ -1,0 +1,54 @@
+/*
+ * REF: https://www.tutorialspoint.com/assembly_programming
+ */
+================================================================================
+# Unconditional jump
+This is performed by the JMP instruction. Conditional execution often involves a 
+transfer of control to the address of an instruction that does not follow the 
+currently executing instruction. Transfer of control may be forward, to execute 
+a new set of instructions or backward, to re-execute the same steps.
+
+# Conditional jump
+This is performed by a set of jump instructions j<condition> depending upon the 
+condition. The conditional instructions transfer the control by breaking the 
+sequential flow and they do it by changing the offset value in IP.
+
+================================================================================
+The CMP instruction compares two operands. It is generally used in conditional 
+execution. This instruction basically subtracts one operand from the other for 
+comparing whether the operands are equal or not. It does not disturb the 
+destination or source operands. It is used along with the conditional jump 
+instruction for decision making.
+
+# Syntax
+CMP destination, source
+
+# Example
+CMP DX,	00  ; Compare the DX value with zero
+JE  L7      ; If yes, then jump to label L7
+.
+.
+L7: ..
+---
+
+# Example
+INC	EDX
+CMP	EDX, 10	; Compares whether the counter has reached 10
+JLE	LP1     ; If it is less than or equal to 10, then jump to LP1
+.
+.
+LP1: ..
+
+================================================================================
+The JMP instruction provides a label name where the flow of control is 
+transferred immediately.
+
+# Example
+MOV  AX, 00    ; Initializing AX to 0
+MOV  BX, 00    ; Initializing BX to 0
+MOV  CX, 01    ; Initializing CX to 1
+L20:
+ADD  AX, 01    ; Increment AX
+ADD  BX, AX    ; Add AX to BX
+SHL  CX, 1     ; shift left CX, this in turn doubles the CX value
+JMP  L20       ; repeats the statements
