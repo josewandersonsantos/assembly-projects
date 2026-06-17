@@ -1,9 +1,9 @@
 global _start
 
 section .data
-    prompt db 'Enter an expression (e.g. 3 + 4): ', 0
+    prompt db "Enter an expression (e.g. 3 + 4), use '*', '+', '-' and '/': ", 0x00
     prompt_len equ $ - prompt
-    error_msg db 'Invalid input. Please enter a valid expression.', 0
+    error_msg db 'Invalid input. Please enter a valid expression.', 0x0A
     error_len equ $ - error_msg
 
     ; variable to store the actual state of the calculator
@@ -18,20 +18,30 @@ section .data
 
 section .bss
     buffer resb 100   ; reserve 100 bytes for input buffer
-    input_size resb 4 ; reserve 4 byte for input len 
+    input_size resb 4 ; reserve 4 byte for input len s
     input_idx resb 4  ; reserve 4 byte for input index
-    opr1 resb 4       ; reserve 4 bytes for operand 1 
+    opr1 resb 4       ; reserve 4 bytes for operand 1 s
     opr2 resb 4       ; reserve 4 bytes for operand 2
     operator resb 1   ; reserve 1 byte for the operator
     result resb 4     ; reserve 4 bytes for the result
     
 section .text
 
+_start:
+    CALL get_input
+    JMP exit
+
 get_input:
     ; Read input from the user
     ; You can use sys_read to read from stdin (file descriptor 0)
     ; Store the input in a buffer for processing
     
+    MOV EAX, 0x04       ; syscall (sys_write)
+    MOV EBX, 0x01       ; file descriptor stdout
+    MOV ECX, prompt     ; buffer to store the input
+    MOV EDX, prompt_len ; number of bytes to read
+    INT 0x80            ; call kernel 
+
     MOV EAX, 0x03    ; syscall (sys_read)
     MOV EBX, 0x00    ; file descriptor stdin   
     MOV ECX, buffer  ; buffer to store the input
@@ -51,50 +61,6 @@ clean_input:
     ; Clean the input by removing any newline characters or extra spaces
     ; You can use a loop to iterate through the input buffer and remove unwanted characters
     ; After cleaning the input, you can proceed to process it
-
-get_op1:
-    ; Extract the first operand from the input
-    ; You can use a loop to iterate through the input buffer until you find a space or an operator
-    ; Store the first operand in a variable for later use
-
-    MOV EAX, [input_idx]
-    XOR EBX, EBX
-    MOV EBX, [buffer + EAX]
-    CMP EBX, ' '
-    JE process_input
-
-    INC BYTE [input_idx]
-        
-    CMP EBX, '0'
-    JL invalid_input
-    CMP EBX, '9'
-    JG invalid_input
-    
-    MOV EAX, opr1
-    MOV DL, 0x0A
-    MUL DL
-    
-    SUB EBX, 0x30
-    ADD EAX, EBX
-
-    JMP get_op1
-
-get_op2:
-    ; Extract the second operand from the input
-    ; You can use a loop to iterate through the input buffer until you find a space or an operator
-    ; Store the second operand in a variable for later use
-    JE process_input
-
-get_operator:
-    ; Extract the operator from the input
-    ; You can use a loop to iterate through the input buffer until you find a space or an operator
-    ; Store the operator in a variable for later use
-    MOV EAX, [input_idx]
-    XOR EBX, EBX
-    MOV EBX, [buffer + EAX]
-    
-    JE process_input
-
 
 process_input:
     ; Process the input to determine the operation and operands
@@ -126,6 +92,91 @@ process_input:
     JMP op_div
 
     JMP exit
+
+get_digit:
+    MOV EAX, [input_idx]
+    MOV EDX, [input_size]
+    CMP EAX, EDX
+    JGE invalid_input
+
+    XOR EBX, EBX
+    MOV BL, [buffer + EAX]    
+    
+    CMP BL, ' '
+    JE process_input
+    
+    CMP BL, '0'
+    JL process_input
+    CMP BL, '9'
+    JG process_input
+
+    INC BYTE [input_idx]
+
+    ret
+
+get_op1:
+    ; Extract the first operand from the input
+    ; You can use a loop to iterate through the input buffer until you find a space or an operator
+    ; Store the first operand in a variable for later use
+    CALL get_digit
+    
+    MOV EAX, [opr1]
+    MOV DL, 0x0A
+    MUL DL
+    
+    SUB BL, 0x30
+    ADD EAX, EBX
+    MOV [opr1], EAX
+
+    JMP get_op1
+
+get_op2:
+    ; Extract the second operand from the input
+    ; You can use a loop to iterate through the input buffer until you find a space or an operator
+    ; Store the second operand in a variable for later use
+    CALL get_digit
+    
+    MOV EAX, [opr2]
+    MOV DL, 0x0A
+    MUL DL
+    
+    SUB BL, 0x30
+    ADD EAX, EBX
+    MOV [opr2], EAX
+
+    JMP get_op2
+
+get_operator:
+    ; Extract the operator from the input
+    ; You can use a loop to iterate through the input buffer until you find a space or an operator
+    ; Store the operator in a variable for later use
+    MOV EAX, [input_idx]
+    MOV EDX, [input_size]
+    CMP EAX, EDX
+    JGE invalid_input
+
+    INC BYTE [input_idx]
+
+    XOR EBX, EBX
+    MOV BL, [buffer + EAX]    
+    
+    CMP BL, ' '
+    JE get_operator
+
+    MOV [operator], BL
+
+    CMP BL, '*'
+    JE process_input
+    CMP BL, '+'
+    JE process_input
+    CMP BL, '-'
+    JE process_input
+    CMP BL, '/'
+    JE process_input
+
+    JMP get_operator
+s
+int_to_ascii:
 
 ascii_to_int:
     ; Convert the operand from ASCII string to integer
@@ -212,6 +263,13 @@ op_div:
     JMP print_result
 
 invalid_input:
+
+    MOV EAX, 0x04
+    MOV EBX, 0x00
+    MOV ECX, error_msg
+    MOV EDX, error_len
+    INT 0x80
+
     JMP exit
 
 print_result:
@@ -221,10 +279,6 @@ print_result:
     ; After printing the result, you can jump to the exit label to exit the program
 
 
-    JMP get_input
-
-_start:
-    CALL get_input
     JMP exit
 
 exit:
