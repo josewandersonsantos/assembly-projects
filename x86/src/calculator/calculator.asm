@@ -11,8 +11,7 @@ section .data
     ; 1 = getting first operand,
     ; 2 = getting operator,
     ; 3 = getting second operand,
-    ; 5 = calculatting result
-    ; 4 = ready to output result
+    ; 4 = calculatting result
     state db 0
 
 section .bss
@@ -51,8 +50,8 @@ get_input:
     MOV DWORD [input_size], EAX ; get input len
     MOV WORD  [input_idx], 0x00
     MOV BYTE  [state], 0x00
-    MOV WORD  [opr1], 0x00
-    MOV WORD  [opr2], 0x00
+    MOV DWORD  [opr1], 0x00
+    MOV DWORD  [opr2], 0x00
     MOV BYTE  [operator], 0x00
 
     JMP process_input
@@ -197,7 +196,7 @@ op_div:
 invalid_input:
 
     MOV EAX, 0x04
-    MOV EBX, 0x00
+    MOV EBX, 0x01
     MOV ECX, error_msg
     MOV EDX, error_len
     INT 0x80
@@ -220,7 +219,7 @@ int_to_ascii:
     CALL int_to_ascii
 
     MOV EAX, 0x04
-    MOV EBX, 0x00
+    MOV EBX, 0x01
     MOV ECX, ESP
     MOV EDX, 0x01
     INT 0x80
@@ -246,7 +245,7 @@ print_zero_char:
     PUSH EDX
     
     MOV EAX, 0x04
-    MOV EBX, 0x00
+    MOV EBX, 0x01
     MOV ECX, ESP
     MOV EDX, 0x01
     
@@ -260,7 +259,7 @@ print_break_line:
     PUSH EDX
     
     MOV EAX, 0x04
-    MOV EBX, 0x00
+    MOV EBX, 0x01
     MOV ECX, ESP
     MOV EDX, 0x01
     
