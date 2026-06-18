@@ -5,7 +5,8 @@
             "label": "Build Assembly",
             "type": "shell",
             // "command": "cd x86/src/print_sequence && make",
-            "command": "cd x86/src/calculator && make",
+            // "command": "cd x86/src/calculator && make",
+            "command": "cd x86/src/jokenpo && make",
             "group": {
                 "kind": "build",
                 "isDefault": true
