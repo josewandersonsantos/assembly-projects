@@ -16,7 +16,7 @@ section .data
     state db 0
 
 section .bss
-    buffer resb 64    ; reserve 100 bytes for input buffer
+    buffer resb 64    ; reserve 64 bytes for input buffer
     input_size resb 4 ; reserve 4 byte for input len s
     input_idx resb 4  ; reserve 4 byte for input index
     opr1 resb 4       ; reserve 4 bytes for operand 1 s
@@ -87,10 +87,7 @@ get_digit:
     JE invalid_input
 
     XOR EBX, EBX
-    MOV BL, [buffer + EAX]    
-    
-    CMP BL, ' '
-    JE process_input
+    MOV BL, [buffer + EAX]
     
     CMP BL, '0'
     JL process_input
@@ -106,9 +103,10 @@ get_op1:
     ; Iterate through the input buffer until you find a space or an operator
     CALL get_digit
     
+    XOR ECX, ECX
     MOV EAX, [opr1]
-    MOV DL, 0x0A
-    MUL DL
+    MOV ECX, 0x0A
+    MUL ECX
     
     SUB BL, 0x30
     ADD EAX, EBX
@@ -121,9 +119,10 @@ get_op2:
     ; Iterate through the input buffer until you find a space or an operator
     CALL get_digit
     
+    XOR ECX, ECX
     MOV EAX, [opr2]
-    MOV DL, 0x0A
-    MUL DL
+    MOV ECX, 0x0A
+    MUL ECX
     
     SUB BL, 0x30
     ADD EAX, EBX
@@ -190,7 +189,7 @@ op_div:
     ; Perform division on the operands
     MOV EAX, [opr1]
     MOV EBX, [opr2]
-    DIV EBX
+    DIV BL
 
     MOV [result], EAX
     JMP print_result
@@ -255,7 +254,6 @@ print_zero_char:
     POP EDX
 
 print_break_line:
-
     XOR EDX, EDX
     MOV EDX, 0x0A
     
