@@ -53,20 +53,10 @@ _start:
 play:
     CALL get_random
     
-    XOR EAX, EAX
-    MOV AX, WORD [seed]
-    
-    MOV EBX, 0x03
-    DIV BX
-    CMP BYTE AH, 0x00
-    JE play_p
-    
-    MOV EBX, 0x05
-    DIV BX
-    CMP BYTE AH, 0x00
+    CMP EAX, 0x02
+    JL play_p
     JE play_s
-    
-    JMP play_r
+    JG play_r
 
 play_p: ; if number if disible for 3
     print msg_my_choice, msg_my_choice_len
@@ -75,6 +65,7 @@ play_p: ; if number if disible for 3
     MOV BYTE [my_choice], 0x0A
     print my_choice, 0x01
 
+    MOV BYTE DL, [choice]
     CMP BYTE [choice], 'P'
     JE print_draw
     CMP BYTE [choice], 'S'
@@ -89,6 +80,7 @@ play_s: ; if number if disible for 5
     MOV BYTE [my_choice], 0x0A
     print my_choice, 0x01
 
+    MOV BYTE DL, [choice]
     CMP BYTE [choice], 'S'
     JE print_draw
     CMP BYTE [choice], 'R'
@@ -103,6 +95,7 @@ play_r:
     MOV BYTE [my_choice], 0x0A
     print my_choice, 0x01
 
+    MOV BYTE DL, [choice]
     CMP BYTE [choice], 'R'
     JE print_draw
     CMP BYTE [choice], 'P'
