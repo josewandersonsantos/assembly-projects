@@ -42,7 +42,7 @@ get_input:
     INT 0x80            ; call kernel 
 
     MOV EAX, 0x03    ; syscall (sys_read)
-    MOV EBX, 0x00    ; file descriptor stdin   
+    XOR EBX, EBX     ; file descriptor stdin   
     MOV ECX, buffer  ; buffer to store the input
     MOV EDX, 0x64    ; number of bytes to read
     INT 0x80         ; call kernel 
@@ -233,8 +233,8 @@ end_int_to_ascii:
 print_result:
     ; Print the result to the user
     MOV EAX, [result]
-    CMP EAX, 0x00
-    JE print_zero_char
+    TEST EAX, EAX
+    JZ print_zero_char
     CALL int_to_ascii
     JMP print_break_line
 
