@@ -2,22 +2,22 @@
 global _start
 
 section .data
-    prompt db "Choice your trick! (e.g. 'P for paper, 'S' for scissors and 'R' for rock.):"
-    prompt_len equ $ - prompt
-    msg_choice_error db "--> Invalid choice dude! (e.g. 'P for paper, 'S' for scissors and 'R' for rock.)", 0x0A
-    msg_choice_error_len equ $ - msg_choice_error
-    msg_my_choice db "# My choice: "
-    msg_my_choice_len equ $ - msg_my_choice
-    msg_win db "# You win!", 0x0A
-    msg_win_len equ $ - msg_win
-    msg_lose db "# You lose!", 0x0A
-    msg_lose_len equ $ - msg_lose
-    msg_draw db "# We draw!", 0x0A
-    msg_draw_len equ $ - msg_draw
+    prompt DB "Choice your trick! (e.g. 'P for paper, 'S' for scissors and 'R' for rock.):"
+    prompt_len EQU $ - prompt
+    msg_choice_error DB "--> Invalid choice dude! (e.g. 'P for paper, 'S' for scissors and 'R' for rock.)", 0x0A
+    msg_choice_error_len EQU $ - msg_choice_error
+    msg_my_choice DB "# My choice: "
+    msg_my_choice_len EQU $ - msg_my_choice
+    msg_win DB "# You win!", 0x0A
+    msg_win_len EQU $ - msg_win
+    msg_lose DB "# You lose!", 0x0A
+    msg_lose_len EQU $ - msg_lose
+    msg_draw DB "# We draw!", 0x0A
+    msg_draw_len EQU $ - msg_draw
 
 section .bss
-    choice resb 0x01
-    my_choice resb 0x01
+    choice RESB 0x01
+    my_choice RESB 0x01
 
 section .text
 ; MACROS DEFINITIONS
