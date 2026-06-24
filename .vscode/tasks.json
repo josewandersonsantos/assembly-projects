@@ -6,10 +6,52 @@
             "type": "shell",
             // "command": "cd x86/src/print_sequence && make",
             // "command": "cd x86/src/calculator && make",
-            "command": "cd x86/src/jokenpo && make",
+            "command": "cd ${workspaceFolder}/x86/src/jokenpo && make",
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build ARM",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/ARM/src/Blink && make qemu-build",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run QEMU (GDB Server)",
+            "type": "shell",
+            "command": "qemu-system-arm",
+            "args": [
+                "-M", "stm32vldiscovery",
+                "-cpu", "cortex-m3",
+                "-kernel", "${workspaceFolder}/ARM/src/Blink/main.elf",
+                "-nographic",
+                "-S",           // pausa no início
+                "-gdb", "tcp::1234"
+            ],
+            "dependsOn":["Stop QEMU ARM", "Build ARM"],
+            "group": "test",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true
+            }
+        },
+        {
+            "label": "Stop QEMU ARM",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/ARM/src/Blink && make qemu-stop",
+            "group": {
+                "kind": "build",
+                "isDefault": false
             },
             "problemMatcher": []
         }
