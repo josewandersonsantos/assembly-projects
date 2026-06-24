@@ -20,12 +20,12 @@ get_random:
     MOV EAX, [seed]
     IMUL EAX, 1103515245
     ADD EAX, 12345
-    MOV [seed], EAX  ; Atualiza a semente para a próxima chamada
+    MOV [seed], EAX
 
     ; Limitar o número para o intervalo de 1 a 3 usando a instrução DIV
     ; O resto da divisão por 3 (EAX mod 3) resultará em 0, 1 ou 2.
     ; Somando 1 no final, o resultado vira 1, 2 ou 3.
-    xor EDX, EDX        ; Limpa EDX antes da divisao (importante!)
+    XOR EDX, EDX        ; Limpa EDX antes da divisao (importante!)
     MOV ECX, 3          ; Queremos um intervalo de 3 possibilidades
     DIV ECX             ; Divide EDX:EAX por ECX. O resto vai para EDX!
 

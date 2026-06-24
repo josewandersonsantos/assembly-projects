@@ -26,23 +26,57 @@
       "preLaunchTask": "Build Assembly"
     },
     {
-      "name": "C/C++ Runner: Debug Session",
+      "name": "QEMU Cortex-M3",
       "type": "cppdbg",
+      "svdPath": "${workspaceFolder}/ARM/src/Blink/STM32F100.svd",
       "request": "launch",
-      "args": [],
-      "stopAtEntry": false,
-      "externalConsole": false,
-      "cwd": "/mnt/c/Courses/Assembly/RISC-V/tools/riscv/repo/05/add3/qemu64",
-      "program": "/mnt/c/Courses/Assembly/RISC-V/tools/riscv/repo/05/add3/qemu64/build/Debug/outDebug",
-      "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
+      "stopAtEntry": true,
+      "miDebuggerServerAddress": "localhost:1234",
+      "cwd": "${workspaceFolder}/ARM/src/Blink/",
+      "program": "${workspaceFolder}/ARM/src/Blink/main.elf",
+      // "miDebuggerPath": "arm-none-eabi-gdb.exe",
+      "miDebuggerPath": "gdb-multiarch",
       "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ]
+          {
+            "description": "Pretty print",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          },
+          // {
+          //   "description": "Connect host",
+          //   "text": "target remote localhost:1234",
+          //   "ignoreFailures": true
+          // },
+          {
+            "description": "Load symbol file",
+            "text": "file ${workspaceFolder}/ARM/src/Blink/main.elf",
+            "ignoreFailures": true
+          },
+          {
+            "description": "Load firmware",
+            "text": "load",
+            "ignoreFailures": true
+          },
+          {
+              "description": "Reset target",
+              "text": "monitor system_reset",
+              "ignoreFailures": true
+          },
+          {
+              "description": "Break entry point",
+              "text": "break Reset_Handler",
+              "ignoreFailures": true
+          },
+          {
+              "description": "Continue entry point",
+              "text": "continue",
+              "ignoreFailures": true
+          }
+      ],
+
+      "preLaunchTask": "Run QEMU (GDB Server)",
+      // "preLaunchTask": "Run QEMU ARM",
+      "postDebugTask": "Stop QEMU ARM"
     }
   ]
 }
