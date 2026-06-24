@@ -1,5 +1,2 @@
 # Assembly
-A repository to store my files about assembly study:
-- x86
-- ARM
-- RISCV
+A repository for learning assembly for x86, ARM and RISCV.
