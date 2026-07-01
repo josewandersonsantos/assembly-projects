@@ -7,21 +7,22 @@
 .global vector_table
 vector_table:
     .word _estack               @ Initial Stack Pointer
-    .word Reset_Handler + 1     @ Reset Handler (bit 0 = 1 = Thumb)
-    .word 0                     @ NMI
-    .word 0                     @ HardFault
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
-    .word 0
+    .word Reset_Handler + 1     @ Reset Handler (Thumb mode)
+    .word NMI_Handler           @ NMI
+    .word HardFault_Handler     @ HardFault
+    .word MemManage_Handler     @ MemManage
+    .word BusFault_Handler      @ BusFault
+    .word UsageFault_Handler    @ UsageFault
+    .word 0                     @ Reserved
+    .word 0                     @ Reserved
+    .word 0                     @ Reserved
+    .word 0                     @ Reserved
+    .word SVC_Handler           @ SVCall
+    .word DebugMon_Handler      @ Debug Monitor
+    .word 0                     @ Reserved
+    .word PendSV_Handler        @ PendSV
+    .word SysTick_Handler       @ SysTick
+
 
 .text
 .thumb_func
@@ -77,3 +78,48 @@ delay_loop:
     subs r3, #1
     bne delay_loop
     bx lr
+
+.thumb_func
+.global NMI_Handler
+NMI_Handler:
+    b .
+
+.thumb_func
+.global HardFault_Handler
+HardFault_Handler:
+    b .
+
+.thumb_func
+.global MemManage_Handler
+MemManage_Handler:
+    b .
+
+.thumb_func
+.global BusFault_Handler
+BusFault_Handler:
+    b .
+
+.thumb_func
+.global UsageFault_Handler
+UsageFault_Handler:
+    b .
+
+.thumb_func
+.global SVC_Handler
+SVC_Handler:
+    b .
+
+.thumb_func
+.global DebugMon_Handler
+DebugMon_Handler:
+    b .
+
+.thumb_func
+.global PendSV_Handler
+PendSV_Handler:
+    b .
+
+.thumb_func
+.global SysTick_Handler
+SysTick_Handler:
+    b .
