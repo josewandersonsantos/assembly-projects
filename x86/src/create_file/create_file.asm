@@ -7,9 +7,9 @@ section .bss
     fd resb 0x1
 
 section .data
-    prompt1 db "Insert file name:"
+    prompt1 db "Type file name:"
     prompt1Len equ $ - prompt1
-    prompt2 db "Insert file content:"
+    prompt2 db "Type file content:"
     prompt2Len equ $ - prompt2
 
 section .text
@@ -25,7 +25,7 @@ _start:
     MOV EAX, 0x03
     MOV EBX, 0x00
     MOV ECX, buf
-    MOV EDX, lenIn
+    MOV EDX, 1024
     INT 0x80
     
     ; Create file
@@ -34,14 +34,31 @@ _start:
     MOV ECX, 0777 ;read, write and execute
     INT 0x80
 
-    PUSH EAX
+    ; PUSH EAX
 
     ; get file descriptor from EAX
     MOV [fd], EAX
 
+    ; Prompt 2
+    MOV EAX, 0x04
+    MOV EBX, 0x01
+    MOV ECX, prompt2
+    MOV EDX, prompt2Len
+    INT 0x80
+
     ; Get content file from stdin
     MOV EAX, 0x03
     MOV EBX, 0x00
+    MOV ECX, buf
+    MOV EDX, 1024
+    ; MOV EDX, 24
+    INT 0x80
+
+    MOV [lenIn], EAX
+
+    ; Loopback
+    MOV EAX, 0x04
+    MOV EBX, 0x01
     MOV ECX, buf
     MOV EDX, lenIn
     INT 0x80
@@ -51,12 +68,15 @@ _start:
     MOV EBX, [fd]
     MOV ECX, buf
     MOV EDX, lenIn
+    ; MOV EDX, 24
     INT 0x80
 
     ; Close file
     MOV EAX, 0x06
-    ; MOV EBX
+    MOV EBX, [fd]
     INT 0x80
+
+    JMP exit
 
     POP EAX
 
