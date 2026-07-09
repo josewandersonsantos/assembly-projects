@@ -4,7 +4,7 @@ section .bss
     lenIn resb 0x02
 
     filePath resb 24
-    fd resb 0x1
+    fd resb 0x4
 
 section .data
     prompt1 db "Type file name:"
@@ -51,7 +51,6 @@ _start:
     MOV EBX, 0x00
     MOV ECX, buf
     MOV EDX, 1024
-    ; MOV EDX, 24
     INT 0x80
 
     MOV [lenIn], EAX
@@ -67,7 +66,7 @@ _start:
     MOV EAX, 0x04
     MOV EBX, [fd]
     MOV ECX, buf
-    MOV EDX, lenIn
+    MOV EDX, [lenIn]
     ; MOV EDX, 24
     INT 0x80
 
@@ -78,37 +77,37 @@ _start:
 
     JMP exit
 
-    POP EAX
+;     POP EAX
 
-    ; Open file
-    MOV EBX, buf
-    MOV EAX, 0x05
-    MOV ECX, 0x00 ; 0 read-only, 1 write-only, 2 read-write
-    MOV EDX, 0777 ; read, write and execute
-    INT 0x80
+;     ; Open file
+;     MOV EBX, buf
+;     MOV EAX, 0x05
+;     MOV ECX, 0x00 ; 0 read-only, 1 write-only, 2 read-write
+;     MOV EDX, 0777 ; read, write and execute
+;     INT 0x80
 
-    ; Get content from file
-    MOV EAX, 0x03
-    MOV EBX, [fd]
-    MOV EBX, buf
-    MOV EDX, 1024
-    INT 0x80
+;     ; Get content from file
+;     MOV EAX, 0x03
+;     MOV EBX, [fd]
+;     MOV EBX, buf
+;     MOV EDX, 1024
+;     INT 0x80
 
-    ; Print content
-    MOV EDX, EAX
-    MOV EBX, 0x01
-    MOV ECX, buf
-    MOV EAX, 0x04
-    INT 0x80
+;     ; Print content
+;     MOV EDX, EAX
+;     MOV EBX, 0x01
+;     MOV ECX, buf
+;     MOV EAX, 0x04
+;     INT 0x80
 
-    ; Close file again
-    MOV EAX, 0x06
-    MOV EBX, [fd]
-    INT 0x80
+;     ; Close file again
+;     MOV EAX, 0x06
+;     MOV EBX, [fd]
+;     INT 0x80
 
-    ; JMP exit
+;     ; JMP exit
 
-error:
+; error:
 
 
 exit:
