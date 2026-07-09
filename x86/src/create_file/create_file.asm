@@ -1,7 +1,7 @@
 global _start
 section .bss
     buf resb 1024
-    lenIn resb 0x02
+    lenIn resd 0x01
 
     filePath resb 24
     fd resb 0x4
@@ -67,7 +67,6 @@ _start:
     MOV EBX, [fd]
     MOV ECX, buf
     MOV EDX, [lenIn]
-    ; MOV EDX, 24
     INT 0x80
 
     ; Close file
