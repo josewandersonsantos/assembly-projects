@@ -1,5 +1,6 @@
 # Assembly
 
+![Purpose](https://img.shields.io/badge/Purpose-Learning-orange)
 ![Language](https://img.shields.io/badge/Language-Assembly-informational)
 ![Architecture](https://img.shields.io/badge/Architecture-RISC--V-blue)
 ![Architecture](https://img.shields.io/badge/Architecture-ARM-blue)
